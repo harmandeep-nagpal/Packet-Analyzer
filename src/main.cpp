@@ -32,4 +32,11 @@ int main(int argc, char* argv[]) {
     if (argc >= 3) {
         max_packets = std::stoi(argv[2]);
     }
+    // Open the PCAP file
+    PcapReader reader;
+    if (!reader.open(filename)) {
+        return 1;
+    }
+
+    std::cout << "\n--- Reading packets ---\n";
 }
