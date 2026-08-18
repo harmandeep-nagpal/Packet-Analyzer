@@ -41,6 +41,8 @@ Connection* ConnectionTracker::getOrCreateConnection(const FiveTuple& tuple) {
 }
 
 Connection* ConnectionTracker::getConnection(const FiveTuple& tuple) {
+
+    // It only searches, and if found then return...
     auto it = connections_.find(tuple);
     if (it != connections_.end()) {
         return &it->second;
@@ -83,6 +85,7 @@ void ConnectionTracker::classifyConnection(Connection* conn, AppType app, const 
 void ConnectionTracker::blockConnection(Connection* conn) {
     if (!conn) return;
     
+    // This connection should not be allowed through
     conn->state = ConnectionState::BLOCKED;
     conn->action = PacketAction::DROP;
     blocked_count_++;
@@ -99,6 +102,7 @@ size_t ConnectionTracker::cleanupStale(std::chrono::seconds timeout) {
     auto now = std::chrono::steady_clock::now();
     size_t removed = 0;
     
+    // Iterate through the map
     for (auto it = connections_.begin(); it != connections_.end(); ) {
         auto age = std::chrono::duration_cast<std::chrono::seconds>(
             now - it->second.last_seen);
@@ -106,7 +110,9 @@ size_t ConnectionTracker::cleanupStale(std::chrono::seconds timeout) {
         if (age > timeout || it->second.state == ConnectionState::CLOSED) {
             it = connections_.erase(it);
             removed++;
-        } else {
+        } 
+        // If connection isn't stale then just move to next connection
+        else {
             ++it;
         }
     }
@@ -138,6 +144,7 @@ ConnectionTracker::TrackerStats ConnectionTracker::getStats() const {
     return stats;
 }
 
+// This removes everything form the flow table.
 void ConnectionTracker::clear() {
     connections_.clear();
 }
@@ -187,6 +194,7 @@ GlobalConnectionTable::GlobalStats GlobalConnectionTable::getGlobalStats() const
     std::unordered_map<std::string, size_t> domain_counts;
     
     for (const auto* tracker : trackers_) {
+        // For every FP tracker if a tracker isn't registered then continue
         if (!tracker) continue;
         
         auto tracker_stats = tracker->getStats();
@@ -202,7 +210,7 @@ GlobalConnectionTable::GlobalStats GlobalConnectionTable::getGlobalStats() const
         });
     }
     
-    // Get top domains
+    // Convert domain map into vector and Get top domains 
     std::vector<std::pair<std::string, size_t>> domain_vec(
         domain_counts.begin(), domain_counts.end());
     
