@@ -1031,7 +1031,50 @@ python3 generate_test_pcap.py
    - Load on startup
 
 ---
+## 🚧 Known Limitations & Open Contributions
 
+The DPI Engine is an actively developed project. The core packet-processing
+pipeline and several filtering features have been implemented and tested,
+while some components are still under development or require additional
+integration testing.
+
+### Components That Need Further Testing / Development
+
+- [ ] Domain-based blocking (`--block-domain`)
+- [ ] HTTP Host-based domain extraction and filtering
+- [ ] More comprehensive SNI extraction testing
+- [ ] Additional application signatures and classification
+- [ ] Testing with larger and more diverse PCAP files
+- [ ] Testing with different network protocols and traffic patterns
+- [ ] More extensive multi-threading/load-distribution testing
+
+### 🤝 Contributions Welcome
+
+If you are interested in contributing, you are welcome to:
+
+- Fix existing issues
+- Improve or test incomplete components
+- Add new application signatures
+- Add support for additional protocols
+- Improve packet classification
+- Add new filtering rules
+- Improve performance and thread distribution
+- Add automated tests
+- Improve documentation
+
+Please open an **Issue** before making major changes so that the proposed
+change can be discussed.
+
+For contributions:
+
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Test your changes
+5. Commit your changes
+6. Open a Pull Request
+
+All contributions and improvements are welcome.
 ## Summary
 
 This DPI engine demonstrates:

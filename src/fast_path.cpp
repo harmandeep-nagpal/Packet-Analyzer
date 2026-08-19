@@ -200,49 +200,51 @@ PacketAction FastPathProcessor::checkRules(const PacketJob& job, Connection* con
     if (!rule_manager_) {
         return PacketAction::FORWARD;
     }
-    
-    // Parse source IP from tuple
+
     uint32_t src_ip = job.tuple.src_ip;
-    
-    // Check blocking rules
+
+    // Use the connection's current SNI.
+    // Domain rules can only be evaluated when SNI has been extracted.
+    std::string domain = conn->sni;
+
     auto block_reason = rule_manager_->shouldBlock(
         src_ip,
         job.tuple.dst_port,
         conn->app_type,
-        conn->sni
+        domain
     );
-    
+
     if (block_reason) {
-        // Log the block
         std::ostringstream ss;
         ss << "[FP" << fp_id_ << "] BLOCKED packet: ";
-        
+
         switch (block_reason->type) {
             case RuleManager::BlockReason::IP:
                 ss << "IP " << block_reason->detail;
                 break;
+
             case RuleManager::BlockReason::APP:
                 ss << "App " << block_reason->detail;
                 break;
+
             case RuleManager::BlockReason::DOMAIN:
                 ss << "Domain " << block_reason->detail;
                 break;
+
             case RuleManager::BlockReason::PORT:
                 ss << "Port " << block_reason->detail;
                 break;
         }
-        
+
         std::cout << ss.str() << std::endl;
-        
-        // Mark connection as blocked
+
         conn_tracker_.blockConnection(conn);
-        
+
         return PacketAction::DROP;
     }
-    
+
     return PacketAction::FORWARD;
 }
-
 void FastPathProcessor::updateTCPState(Connection* conn, uint8_t tcp_flags) {
     constexpr uint8_t SYN = 0x02;
     constexpr uint8_t ACK = 0x10;

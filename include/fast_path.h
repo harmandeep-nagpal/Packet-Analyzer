@@ -10,6 +10,7 @@
 #include <atomic>
 #include <memory>
 #include <functional>
+#include <algorithm>
 
 namespace DPI {
 
